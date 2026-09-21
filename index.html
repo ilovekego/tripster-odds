@@ -21,7 +21,7 @@
                     colors: {
                         navy: '#051024',
                         navybox: '#0a1936',
-                        bronze: '#e3b778', /* Exact bronze/tan from the image */
+                        bronze: '#e3b778', 
                         bronzedark: '#c59b5f',
                         betgreen: '#16a34a'
                     },
@@ -34,7 +34,6 @@
         }
     </script>
     <style>
-        /* Replicating the sports graphic background */
         body { 
             background-color: #051024; 
             color: #f8fafc; 
@@ -44,12 +43,16 @@
             background-position: 0 0, 10px 10px;
         }
         .blurred-text { filter: blur(5px); user-select: none; }
+        
+        /* Custom scrollbar for the date slider */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #051024; }
         ::-webkit-scrollbar-thumb { background: #e3b778; border-radius: 0px; }
-        .hidden { display: none !important; }
         
-        /* Specialized borders matching the image style */
+        .hidden { display: none !important; }
         .bronze-border-box { border: 2px solid #e3b778; outline: 1px solid #c59b5f; outline-offset: -4px; }
         .ribbon { clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
     </style>
@@ -64,7 +67,6 @@
                 KINGORI <span class="text-bronze">TIPSTER</span>
             </h1>
             
-            <!-- Desktop Nav -->
             <div class="hidden sm:flex gap-6 items-center">
                 <a href="#" class="text-sm font-bold text-white hover:text-bronze transition-colors tracking-widest uppercase">Home</a>
                 <a href="#" class="text-sm font-bold text-bronze hover:text-white transition-colors tracking-widest uppercase">Mega Slips</a>
@@ -73,13 +75,11 @@
                 </div>
             </div>
 
-            <!-- Mobile Menu Toggle -->
             <button id="mobile-menu-btn" class="sm:hidden text-bronze text-2xl focus:outline-none">
                 <i class="fa-solid fa-bars"></i>
             </button>
         </div>
 
-        <!-- Mobile Nav Dropdown -->
         <div id="mobile-menu" class="hidden sm:hidden absolute top-full left-0 w-full bg-navybox border-b-2 border-bronze flex flex-col shadow-lg">
             <a href="#" class="p-4 text-center font-bold text-white uppercase tracking-widest border-b border-slate-700 hover:text-bronze">Home</a>
             <a href="#" class="p-4 text-center font-bold text-bronze uppercase tracking-widest hover:text-white">Mega Slips</a>
@@ -88,11 +88,31 @@
 
     <!-- USER VIEW -->
     <div id="user-view">
+        
+        <!-- Marketing Copy / Hero -->
+        <section class="max-w-5xl mx-auto px-4 py-8 text-center border-b border-slate-800 bg-navybox/50 shadow-inner">
+            <h2 class="text-3xl md:text-4xl font-oswald font-bold text-white uppercase tracking-widest mb-2">
+                Dominate The <span class="text-bronze">Bookies</span> Today
+            </h2>
+            <p class="text-slate-400 text-sm md:text-base max-w-2xl mx-auto tracking-wide">
+                Unlock our heavily researched, high-confidence Mega Slips. We analyze form, injuries, and market drops so you don't have to. Choose your slip below and win big.
+            </p>
+        </section>
+
+        <!-- Date Selector (Fixed visibility) -->
+        <div class="w-full border-b-2 border-bronze bg-navy shadow-md sticky top-[60px] z-40">
+            <div class="max-w-5xl mx-auto px-2 py-3">
+                <div class="flex overflow-x-auto hide-scroll gap-3 items-center px-2" id="date-slider">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </div>
+
         <!-- Main Feed Container -->
-        <main class="max-w-5xl mx-auto px-2 sm:px-4 py-6 pb-10" id="tips-container">
+        <main class="max-w-5xl mx-auto px-2 sm:px-4 py-8 pb-10" id="tips-container">
             <div class="text-center text-slate-500 py-10 bg-navybox border-2 border-bronze max-w-md mx-auto shadow-lg" id="loading-state">
                 <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-bronze"></i>
-                <p class="font-oswald text-xl tracking-wider uppercase text-white">Compiling Odds...</p>
+                <p class="font-oswald text-xl tracking-wider uppercase text-white">Compiling Intel...</p>
             </div>
         </main>
     </div>
@@ -188,6 +208,7 @@
         let tipsData = [];
         let selectedTipIds = new Set();
         let currentTotal = 0;
+        let currentDateFilter = new Date().toISOString().split('T')[0];
         
         const API_URL = 'https://tripster-8090c6bbfe5f.herokuapp.com/api';
         
@@ -201,6 +222,7 @@
             document.getElementById('admin-panel').classList.remove('hidden');
             document.getElementById('admin-badge').classList.remove('hidden');
         } else {
+            generateDates();
             loadTips(); 
         }
 
@@ -216,6 +238,40 @@
                 gravity: "top", position: "center",
                 style: { background: type === 'success' ? "#e3b778" : "#ef4444", color: type === 'success' ? "#051024" : "#fff", borderRadius: "0px", border: "1px solid #051024", fontWeight: "bold", textTransform: "uppercase" }
             }).showToast();
+        }
+
+        // --- FIXED DATE SLIDER LOGIC ---
+        function generateDates() {
+            const slider = document.getElementById('date-slider');
+            slider.innerHTML = '';
+            
+            for(let i = -1; i <= 5; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() + i);
+                const dateString = d.toISOString().split('T')[0];
+                
+                let label = '';
+                if(i === -1) label = 'YESTERDAY';
+                else if (i === 0) label = 'TODAY';
+                else if (i === 1) label = 'TOMORROW';
+                else label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
+
+                const isActive = dateString === currentDateFilter 
+                    ? 'bg-bronze text-navy border-bronze shadow-[0_0_15px_rgba(227,183,120,0.4)]' 
+                    : 'bg-navybox text-slate-400 border-slate-600 hover:border-bronze hover:text-white';
+                
+                slider.innerHTML += `
+                    <button onclick="filterByDate('${dateString}')" class="whitespace-nowrap px-6 py-2 rounded-full border-2 font-bold tracking-widest text-xs transition-all flex-shrink-0 ${isActive}" data-date="${dateString}">
+                        ${label}
+                    </button>
+                `;
+            }
+        }
+
+        function filterByDate(dateStr) {
+            currentDateFilter = dateStr;
+            generateDates(); 
+            renderTips(); 
         }
 
         // --- ADMIN FUNCTIONS ---
@@ -283,29 +339,33 @@
             const container = document.getElementById('tips-container');
             container.innerHTML = '';
 
-            // Define category order
             const categoryOrder = ['Match Winner', 'Over/Under', 'Both Teams to Score', 'Draws'];
-            const groupedTips = {};
+            const filteredTips = tipsData.filter(tip => tip.kickoffTime.startsWith(currentDateFilter));
             
-            tipsData.forEach(tip => {
+            const groupedTips = {};
+            filteredTips.forEach(tip => {
                 const cat = tip.category || 'Match Winner';
                 if(!groupedTips[cat]) groupedTips[cat] = [];
                 groupedTips[cat].push(tip);
             });
 
             if(Object.keys(groupedTips).length === 0) {
-                container.innerHTML = `<div class="text-center py-10 font-bold text-slate-500 uppercase tracking-widest bg-navybox rounded border border-slate-700">No markets published yet.</div>`;
+                container.innerHTML = `
+                    <div class="text-center py-16 px-4 bg-navybox rounded border border-slate-700">
+                        <i class="fa-solid fa-calendar-xmark text-4xl text-slate-600 mb-4"></i>
+                        <h3 class="font-oswald text-xl text-white uppercase tracking-widest mb-2">No Intel Available</h3>
+                        <p class="text-slate-400 text-sm">Check back later or select a different date for our premium markets.</p>
+                    </div>`;
                 return;
             }
 
-            const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
-            const weekday = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            const today = new Date(currentDateFilter).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
+            const weekday = new Date(currentDateFilter).toLocaleDateString('en-US', { weekday: 'long' });
 
             categoryOrder.forEach(categoryName => {
                 if(!groupedTips[categoryName]) return;
                 const catTips = groupedTips[categoryName];
 
-                // Calculate cumulative odds
                 let categoryOdds = 1;
                 let hasOdds = false;
                 catTips.forEach(t => { 
@@ -313,42 +373,36 @@
                 });
                 const oddsDisplay = hasOdds ? categoryOdds.toFixed(2) : 'MEGA';
 
-                // Split tips for the two columns
                 const half = Math.ceil(catTips.length / 2);
                 const col1Tips = catTips.slice(0, half);
                 const col2Tips = catTips.slice(half);
 
-                // Section Header mapping exactly to the provided image structure
                 let html = `
-                    <div class="mb-10 relative">
-                        <!-- Main Header Box -->
-                        <div class="bronze-border-box bg-navybox p-3 mb-4 text-center relative z-10 shadow-xl">
-                            <h2 class="text-bronze font-oswald font-bold text-2xl md:text-3xl tracking-widest uppercase flex justify-center items-center gap-3">
+                    <div class="mb-12 relative bg-[#081630] p-4 rounded-xl shadow-lg border border-slate-800">
+                        
+                        <div class="bronze-border-box bg-navybox p-3 mb-4 text-center relative z-10 shadow-xl mt-4">
+                            <h2 class="text-bronze font-oswald font-bold text-xl md:text-3xl tracking-widest uppercase flex justify-center items-center gap-3">
                                 <i class="fa-solid fa-futbol text-lg"></i> 
-                                KINGORI TIPSTER - ${categoryName.toUpperCase()} MEGA ODDS
+                                KINGORI TIPSTER - ${categoryName.toUpperCase()}
                                 <i class="fa-solid fa-futbol text-lg"></i>
                             </h2>
                         </div>
                         
-                        <!-- Date Ribbon -->
-                        <div class="absolute -top-3 left-6 z-20">
-                            <div class="ribbon bg-navy border-t border-b border-bronze px-6 py-1 text-[10px] sm:text-xs font-bold text-bronze uppercase tracking-widest">
+                        <div class="absolute top-0 left-6 z-20">
+                            <div class="ribbon bg-navy border-t border-b border-bronze px-6 py-1 text-[10px] sm:text-xs font-bold text-bronze uppercase tracking-widest shadow-md">
                                 DATE: ${today} • ${weekday.toUpperCase()} • PREMIUM PICKS
                             </div>
                         </div>
 
-                        <!-- Stats Bar -->
-                        <div class="flex justify-between items-center border-y border-bronze bg-navy/50 py-1 px-4 mb-4 mt-2">
+                        <div class="flex justify-between items-center border-y border-bronze bg-navy/80 py-2 px-4 mb-4 mt-2 rounded">
                             <i class="fa-solid fa-star text-bronze text-[10px]"></i>
-                            <span class="text-white font-oswald text-sm md:text-base tracking-widest uppercase">
-                                ${catTips.length} PICKS • TOTAL ODDS: <span class="text-bronze">${oddsDisplay}</span>
+                            <span class="text-white font-oswald text-sm md:text-base tracking-widest uppercase font-bold shadow-text">
+                                ${catTips.length} PICKS • SLIP ODDS: <span class="text-bronze">${oddsDisplay}</span>
                             </span>
                             <i class="fa-solid fa-star text-bronze text-[10px]"></i>
                         </div>
                         
-                        <!-- 2-Column Grid Layout -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-0">
-                            <!-- Column 1 -->
                             <div>
                                 <div class="text-center text-bronze font-bold text-xs uppercase tracking-widest mb-2 flex items-center justify-center gap-2">
                                     <i class="fa-solid fa-futbol text-[10px]"></i> PICKS — GAMES 1-${col1Tips.length}
@@ -358,7 +412,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Column 2 (Only renders if there are tips) -->
                             <div class="${col2Tips.length === 0 ? 'hidden md:block opacity-0' : ''}">
                                 <div class="text-center text-bronze font-bold text-xs uppercase tracking-widest mb-2 flex items-center justify-center gap-2 mt-4 md:mt-0">
                                     <i class="fa-solid fa-futbol text-[10px]"></i> PICKS — GAMES ${col1Tips.length + 1}-${catTips.length}
@@ -368,35 +421,42 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- NEW BETIKA BUTTON APPENDED AT THE BOTTOM OF THE CATEGORY -->
+                        <div class="mt-6 border-t border-slate-700 pt-4">
+                            <a href="https://betika.com" target="_blank" class="block w-full sm:w-2/3 mx-auto text-center bg-betgreen hover:bg-green-500 text-white font-black uppercase tracking-widest py-3 rounded shadow-lg border-b-4 border-green-800 transition-all text-sm sm:text-base">
+                                <i class="fa-solid fa-money-bill-wave mr-2"></i> Bet Bila Tax on Betika
+                            </a>
+                        </div>
+
                     </div>`;
                 
                 container.innerHTML += html;
             });
         }
 
-        // Helper function to generate the rows to ensure columns look identical
         function generateRowsHTML(tipsArray) {
             let html = '';
             tipsArray.forEach(tip => {
                 if(tip.isFree) {
                     html += `
-                        <div class="flex justify-between items-stretch bg-[#051024] border border-slate-600 shadow-md h-[46px]">
+                        <div class="flex justify-between items-stretch bg-navy border border-slate-700 shadow-md h-[50px]">
                             <div class="flex items-center px-3 w-full border-r border-slate-700 overflow-hidden">
                                 <div class="font-bold text-white text-xs sm:text-sm tracking-wide truncate w-full flex items-center gap-2">
                                     <i class="fa-regular fa-futbol text-slate-500 text-[10px]"></i>
                                     <span class="truncate">${tip.homeTeam} <span class="text-slate-500 text-[10px] mx-1">VS</span> ${tip.awayTeam}</span>
                                 </div>
                             </div>
-                            <div class="bg-bronze text-black font-black text-xs sm:text-sm px-3 flex items-center justify-center text-center min-w-[80px] sm:min-w-[100px] border-l border-bronzedark uppercase tracking-wider">
+                            <div class="bg-bronze text-navy font-black text-xs sm:text-sm px-3 flex items-center justify-center text-center min-w-[80px] sm:min-w-[100px] border-l border-bronzedark uppercase tracking-wider">
                                 ${tip.prediction}
                             </div>
                         </div>
                     `;
                 } else {
                     html += `
-                        <div class="flex justify-between items-stretch bg-[#051024] border border-slate-600 shadow-md h-[46px] relative" id="card-${tip._id}">
-                            <div class="flex items-center px-3 w-full border-r border-slate-700 overflow-hidden pl-8 relative">
-                                <input type="checkbox" class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 accent-bronze cursor-pointer" onchange="toggleCart('${tip._id}', ${tip.price}, this)">
+                        <div class="flex justify-between items-stretch bg-navy border border-slate-700 shadow-md h-[50px] relative" id="card-${tip._id}">
+                            <div class="flex items-center px-3 w-full border-r border-slate-700 overflow-hidden pl-10 relative">
+                                <input type="checkbox" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 accent-bronze cursor-pointer" onchange="toggleCart('${tip._id}', ${tip.price}, this)">
                                 <div class="font-bold text-white text-xs sm:text-sm tracking-wide truncate w-full flex items-center gap-2">
                                     <i class="fa-regular fa-futbol text-slate-500 text-[10px]"></i>
                                     <span class="truncate">${tip.homeTeam} <span class="text-slate-500 text-[10px] mx-1">VS</span> ${tip.awayTeam}</span>
@@ -436,12 +496,12 @@
                     const card = document.getElementById(`card-${id}`);
                     if(card) {
                         const rightBox = card.lastElementChild;
-                        rightBox.className = "bg-bronze text-black font-black text-xs sm:text-sm px-3 flex items-center justify-center text-center min-w-[80px] sm:min-w-[100px] border-l border-bronzedark uppercase tracking-wider";
+                        rightBox.className = "bg-bronze text-navy font-black text-xs sm:text-sm px-3 flex items-center justify-center text-center min-w-[80px] sm:min-w-[100px] border-l border-bronzedark uppercase tracking-wider";
                         rightBox.innerHTML = `UNLOCKED`;
                         const checkbox = card.querySelector('input[type="checkbox"]');
                         if (checkbox) checkbox.remove();
-                        const leftBox = card.querySelector('.pl-8');
-                        if (leftBox) leftBox.classList.remove('pl-8');
+                        const leftBox = card.querySelector('.pl-10');
+                        if (leftBox) leftBox.classList.remove('pl-10');
                     }
                 });
                 selectedTipIds.clear();
