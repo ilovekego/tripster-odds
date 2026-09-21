@@ -3,163 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kingori Tipster | Premium Sports Predictions</title>
+    <title>Kingori Tipster | Mega Odds</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Unique Fonts: Oswald for sports headers, Inter for readability -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: '#0ea5e9', // Switched to a unique premium blue instead of the copied green
-                        darkbg: '#0f172a',
-                        cardbg: '#1e293b'
+                        navy: '#020b1e',
+                        navybox: '#0f1c35',
+                        navylight: '#1a2b4c',
+                        gold: '#facc15', // Matches the vibrant yellow/gold from the image
+                        golddark: '#ca8a04',
+                        betgreen: '#16a34a'
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        oswald: ['Oswald', 'sans-serif']
+                    }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #020617; color: #f8fafc; padding-bottom: 100px; }
+        body { background-color: #020b1e; color: #f8fafc; padding-bottom: 100px; background-image: radial-gradient(#1a2b4c 1px, transparent 1px); background-size: 30px 30px; }
         .blurred-text { filter: blur(5px); user-select: none; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }
         .hidden { display: none !important; }
-        .date-btn.active { background-color: #0ea5e9; color: white; border-color: #0ea5e9; font-weight: bold; }
+        .date-btn.active { background-color: #facc15; color: #020b1e; border-color: #facc15; font-weight: bold; }
+        
+        /* Specialized borders matching the image style */
+        .gold-border-box { border: 2px solid #ca8a04; outline: 1px solid #facc15; outline-offset: -4px; }
     </style>
 </head>
 <body class="font-sans antialiased">
 
-    <!-- Header -->
-    <header class="bg-darkbg border-b border-slate-800 p-4 sticky top-0 z-50">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-black tracking-tighter uppercase flex items-center gap-2">
-                <i class="fa-solid fa-bolt text-brand"></i>
-                KINGORI <span class="text-brand font-light">TIPSTER</span>
+    <!-- Navigation Bar -->
+    <nav class="bg-navy border-b-2 border-gold sticky top-0 z-50 shadow-[0_4px_15px_rgba(250,204,21,0.1)]">
+        <div class="max-w-4xl mx-auto flex justify-between items-center p-3">
+            <h1 class="text-2xl font-oswald font-bold tracking-wider uppercase flex items-center gap-2 text-white">
+                <i class="fa-solid fa-crown text-gold"></i>
+                KINGORI <span class="text-gold">TIPSTER</span>
             </h1>
-            <div id="admin-badge" class="hidden text-xs bg-red-500 text-white px-2 py-1 rounded font-bold uppercase tracking-wider">
-                <i class="fa-solid fa-user-shield"></i> Admin
+            <div class="flex gap-4 items-center">
+                <a href="#" class="text-sm font-bold hover:text-gold transition-colors hidden sm:block">HOME</a>
+                <a href="#" class="text-sm font-bold text-gold hover:text-white transition-colors hidden sm:block">MEGA SLIPS</a>
+                <i class="fa-solid fa-bars text-gold text-xl cursor-pointer sm:hidden"></i>
+                <div id="admin-badge" class="hidden text-xs bg-red-600 text-white px-2 py-1 rounded font-bold uppercase tracking-wider">
+                    Admin
+                </div>
             </div>
         </div>
-    </header>
+    </nav>
 
     <!-- USER VIEW -->
     <div id="user-view">
-        <!-- Unique Hero Section -->
-        <section class="px-4 pt-8 pb-6 border-b border-slate-800 bg-gradient-to-b from-slate-900 to-[#020617]">
-            <div class="max-w-md mx-auto text-center">
-                <h2 class="text-3xl font-black mb-2 uppercase tracking-tight text-white">Elite Betting Intelligence</h2>
-                <p class="text-slate-400 text-sm mb-6">Gain the edge with our professional market analysis and premium slip builders.</p>
-            </div>
-        </section>
-
         <!-- Date Selector -->
-        <div class="max-w-md mx-auto px-4 py-4">
+        <div class="max-w-4xl mx-auto px-4 py-6">
             <div class="flex overflow-x-auto gap-2 pb-2" id="date-slider">
                 <!-- Injected via JS -->
             </div>
         </div>
 
-        <!-- Feed -->
-        <main class="max-w-md mx-auto p-4 pt-0" id="tips-container">
+        <!-- Feed Container -->
+        <main class="max-w-4xl mx-auto px-4 pb-10" id="tips-container">
             <div class="text-center text-slate-500 py-10" id="loading-state">
-                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3 text-brand"></i>
-                <p>Loading market data...</p>
+                <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-3 text-gold"></i>
+                <p class="font-oswald text-xl tracking-wide uppercase">Compiling Odds...</p>
             </div>
         </main>
     </div>
 
     <!-- ADMIN VIEW -->
-    <main class="max-w-md mx-auto p-4 hidden" id="admin-panel">
-        <div class="bg-cardbg p-6 rounded-xl border border-slate-700">
-            <h2 class="text-xl font-bold mb-4 border-b border-slate-700 pb-2 text-white"><i class="fa-solid fa-pen-to-square text-brand mr-2"></i>Publish Tip</h2>
+    <main class="max-w-md mx-auto p-4 hidden mt-6" id="admin-panel">
+        <div class="bg-navybox p-6 rounded-xl border-2 border-gold shadow-lg">
+            <h2 class="text-2xl font-oswald font-bold mb-4 border-b border-navylight pb-2 text-white uppercase tracking-wide"><i class="fa-solid fa-pen-to-square text-gold mr-2"></i>Publish Tip</h2>
             <form id="admin-form" onsubmit="publishTip(event)" class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Home Team</label>
-                        <input type="text" id="homeTeam" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-brand">
+                        <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Home Team</label>
+                        <input type="text" id="homeTeam" required class="w-full bg-navy border border-navylight rounded p-2 text-white outline-none focus:border-gold">
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Away Team</label>
-                        <input type="text" id="awayTeam" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-brand">
+                        <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Away Team</label>
+                        <input type="text" id="awayTeam" required class="w-full bg-navy border border-navylight rounded p-2 text-white outline-none focus:border-gold">
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">League (e.g. Premier League)</label>
-                        <input type="text" id="league" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-brand">
+                        <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">League</label>
+                        <input type="text" id="league" required placeholder="e.g. EPL" class="w-full bg-navy border border-navylight rounded p-2 text-white outline-none focus:border-gold">
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Market Category</label>
-                        <select id="category" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-brand">
-                            <option value="Teams to Win">Teams to Win</option>
-                            <option value="Over 2.5">Goals Market</option>
-                            <option value="Both Teams to Score">BTTS</option>
+                        <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Category</label>
+                        <select id="category" class="w-full bg-navy border border-navylight rounded p-2 text-white outline-none focus:border-gold">
+                            <option value="Match Winner">Match Winner</option>
+                            <option value="Draws">Draws</option>
+                            <option value="Overs & Unders">Overs & Unders</option>
+                            <option value="Both Teams to Score">Both Teams to Score</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Prediction</label>
-                        <input type="text" id="prediction" placeholder="e.g. Home Win" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-brand">
+                        <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Prediction</label>
+                        <input type="text" id="prediction" placeholder="e.g. ARSENAL WIN" required class="w-full bg-navy border border-navylight rounded p-2 text-white outline-none focus:border-gold font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Odds</label>
-                        <input type="number" step="0.01" id="odds" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-brand">
+                        <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Odds</label>
+                        <input type="number" step="0.01" id="odds" required class="w-full bg-navy border border-navylight rounded p-2 text-white outline-none focus:border-gold">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Kickoff Time</label>
-                    <input type="datetime-local" id="kickoffTime" required class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-white outline-none focus:border-brand" style="color-scheme: dark;">
+                    <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-wider">Kickoff Time</label>
+                    <input type="datetime-local" id="kickoffTime" required class="w-full bg-navy border border-navylight rounded p-2 text-white outline-none focus:border-gold" style="color-scheme: dark;">
                 </div>
 
-                <div class="flex items-center mt-2 bg-slate-800 p-3 rounded border border-slate-700">
-                    <input type="checkbox" id="isFree" class="w-5 h-5 text-brand bg-slate-900 border-slate-600 rounded focus:ring-brand">
-                    <label class="ml-2 text-sm text-slate-300 font-bold">Set as Free Preview Tip</label>
+                <div class="flex items-center mt-2 bg-navylight p-3 rounded border border-slate-700">
+                    <input type="checkbox" id="isFree" class="w-5 h-5 text-gold bg-navy border-slate-600 rounded focus:ring-gold">
+                    <label class="ml-2 text-sm text-gold font-bold uppercase tracking-wider">Set as Free Preview Tip</label>
                 </div>
 
-                <button type="submit" id="publish-btn" class="w-full bg-brand hover:bg-sky-400 text-white font-bold py-3 rounded-lg mt-4 transition-colors">
-                    <i class="fa-solid fa-paper-plane mr-2"></i>Publish to Server
+                <button type="submit" id="publish-btn" class="w-full bg-gold hover:bg-yellow-300 text-navy font-black py-3 rounded mt-4 transition-colors uppercase tracking-widest text-lg">
+                    <i class="fa-solid fa-paper-plane mr-2"></i>Publish Pick
                 </button>
             </form>
         </div>
     </main>
 
     <!-- Floating Checkout Bar -->
-    <div id="checkout-bar" class="fixed bottom-0 left-0 w-full bg-cardbg border-t border-slate-700 p-4 transform translate-y-full transition-transform duration-300 z-50 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.5)]">
-        <div class="max-w-md mx-auto flex flex-col gap-3">
-            <div class="flex justify-between items-center text-white">
-                <span id="selected-count" class="font-semibold text-sm text-slate-400">0 Picks Selected</span>
-                <span class="text-lg font-bold">Total: <span id="total-price" class="text-brand">0 KES</span></span>
+    <div id="checkout-bar" class="fixed bottom-0 left-0 w-full bg-navybox border-t-2 border-gold p-4 transform translate-y-full transition-transform duration-300 z-50 shadow-[0_-10px_30px_rgba(250,204,21,0.15)]">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-white flex flex-col">
+                <span id="selected-count" class="font-bold text-sm text-slate-400 uppercase tracking-wider">0 Picks Selected</span>
+                <span class="text-xl font-oswald font-bold tracking-wide">TOTAL: <span id="total-price" class="text-gold">0 KES</span></span>
             </div>
             
-            <div class="flex gap-2">
-                <div class="relative w-full">
+            <div class="flex w-full sm:w-auto gap-2">
+                <div class="relative w-full sm:w-48">
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <i class="fa-solid fa-mobile-screen text-slate-500"></i>
+                        <i class="fa-solid fa-mobile-screen text-slate-400"></i>
                     </div>
-                    <input type="tel" id="phone-input" placeholder="07XXXXXXXX" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-brand focus:border-brand block w-full pl-10 p-3 outline-none">
+                    <input type="tel" id="phone-input" placeholder="07XXXXXXXX" class="bg-navy border border-navylight text-white font-bold text-sm rounded focus:ring-gold focus:border-gold block w-full pl-10 p-3 outline-none">
                 </div>
-                <button onclick="processPayment()" id="pay-btn" class="bg-brand hover:bg-sky-400 text-white font-bold py-3 px-6 rounded-lg transition-colors whitespace-nowrap flex items-center gap-2">
-                    <i class="fa-solid fa-unlock"></i> Pay
+                <button onclick="processPayment()" id="pay-btn" class="bg-gold hover:bg-yellow-300 text-navy font-black py-3 px-6 rounded transition-colors whitespace-nowrap flex items-center gap-2 uppercase tracking-wider">
+                    <i class="fa-solid fa-unlock"></i> Unlock Slips
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- VARIABLES DECLARED AT THE TOP TO FIX REFERENCE ERROR ---
         let tipsData = [];
         let selectedTipIds = new Set();
         let currentTotal = 0;
@@ -186,7 +195,7 @@
                 text: message,
                 duration: 4000,
                 gravity: "top", position: "center",
-                style: { background: type === 'success' ? "#0ea5e9" : "#ef4444", color: "#fff", borderRadius: "8px", fontWeight: "bold" }
+                style: { background: type === 'success' ? "#facc15" : "#ef4444", color: type === 'success' ? "#020b1e" : "#fff", borderRadius: "4px", fontWeight: "bold", textTransform: "uppercase" }
             }).showToast();
         }
 
@@ -201,15 +210,15 @@
                 const dateString = d.toISOString().split('T')[0];
                 
                 let label = '';
-                if(i === -1) label = 'Yesterday';
-                else if (i === 0) label = 'Today';
-                else if (i === 1) label = 'Tomorrow';
-                else label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                if(i === -1) label = 'YESTERDAY';
+                else if (i === 0) label = 'TODAY';
+                else if (i === 1) label = 'TOMORROW';
+                else label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
 
-                const isActive = dateString === currentDateFilter ? 'active' : 'text-slate-400 border border-slate-700 bg-slate-900';
+                const isActive = dateString === currentDateFilter ? 'active shadow-[0_0_10px_rgba(250,204,21,0.5)]' : 'text-slate-400 border border-navylight bg-navybox hover:border-gold/50';
                 
                 slider.innerHTML += `
-                    <button onclick="filterByDate('${dateString}')" class="date-btn whitespace-nowrap px-4 py-2 rounded-lg text-sm transition-colors ${isActive}" data-date="${dateString}">
+                    <button onclick="filterByDate('${dateString}')" class="date-btn whitespace-nowrap px-5 py-2 rounded font-bold tracking-wider text-sm transition-all ${isActive}" data-date="${dateString}">
                         ${label}
                     </button>
                 `;
@@ -226,23 +235,21 @@
         async function publishTip(e) {
             e.preventDefault();
             const btn = document.getElementById('publish-btn');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Publishing...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>PUBLISHING...';
             btn.disabled = true;
 
             const payload = {
                 homeTeam: document.getElementById('homeTeam').value,
                 awayTeam: document.getElementById('awayTeam').value,
-                league: document.getElementById('league').value, // League is back
-                category: document.getElementById('category').value, // Used for grouping
+                league: document.getElementById('league').value,
+                category: document.getElementById('category').value,
                 kickoffTime: document.getElementById('kickoffTime').value,
-                prediction: document.getElementById('prediction').value,
+                prediction: document.getElementById('prediction').value.toUpperCase(), // Force uppercase for UI impact
                 odds: parseFloat(document.getElementById('odds').value),
                 isFree: document.getElementById('isFree').checked
             };
 
             try {
-                // Adjusting payload slightly to map category to your existing backend schema if needed, 
-                // but assuming your schema handles it or uses 'league' field flexibly.
                 const response = await fetch(`${API_URL}/admin/publish`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'admin_user': 'tripster', 'admin_pass': 'tripster2026' },
@@ -257,7 +264,7 @@
             } catch (error) {
                 showToast("Server error.", "error");
             } finally {
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i>Publish to Server';
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i>Publish Pick';
                 btn.disabled = false;
             }
         }
@@ -269,14 +276,18 @@
                 tipsData = await response.json();
                 
                 if(tipsData.length === 0) {
+                    // MOCK DATA mapped exactly to the required categories
                     tipsData = [
-                        { _id: '1', homeTeam: 'Arsenal', awayTeam: 'Chelsea', kickoffTime: new Date().toISOString(), prediction: 'Home Win', odds: 2.10, isFree: true, category: 'Teams to Win', league: 'Premier League' },
-                        { _id: '3', homeTeam: 'Juventus', awayTeam: 'AC Milan', kickoffTime: new Date().toISOString(), prediction: 'LOCKED', odds: 'LOCKED', price: 125, isFree: false, category: 'Teams to Win', league: 'Serie A' }
+                        { _id: '1', homeTeam: 'Arsenal', awayTeam: 'Chelsea', kickoffTime: new Date().toISOString(), prediction: 'ARSENAL WIN', odds: 2.10, isFree: true, category: 'Match Winner', league: 'EPL' },
+                        { _id: '2', homeTeam: 'Man City', awayTeam: 'Liverpool', kickoffTime: new Date().toISOString(), prediction: 'DRAW', odds: 3.40, isFree: true, category: 'Draws', league: 'EPL' },
+                        { _id: '3', homeTeam: 'Juventus', awayTeam: 'AC Milan', kickoffTime: new Date().toISOString(), prediction: 'LOCKED', odds: 'LOCKED', price: 125, isFree: false, category: 'Match Winner', league: 'Serie A' },
+                        { _id: '4', homeTeam: 'Real Madrid', awayTeam: 'Barcelona', kickoffTime: new Date().toISOString(), prediction: 'LOCKED', odds: 'LOCKED', price: 150, isFree: false, category: 'Overs & Unders', league: 'La Liga' },
+                        { _id: '5', homeTeam: 'Bayern', awayTeam: 'Dortmund', kickoffTime: new Date().toISOString(), prediction: 'YES', odds: 1.65, isFree: true, category: 'Both Teams to Score', league: 'Bundesliga' }
                     ];
                 }
                 renderTips();
             } catch (error) {
-                document.getElementById('loading-state').innerHTML = '<p class="text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> Server offline</p>';
+                document.getElementById('loading-state').innerHTML = '<p class="text-red-500 font-bold uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation"></i> Server offline</p>';
             }
         }
 
@@ -286,8 +297,10 @@
 
             const filteredTips = tipsData.filter(tip => tip.kickoffTime.startsWith(currentDateFilter));
             
-            // Using a generic rendering approach so any category works
+            // Define strict category order
+            const categoryOrder = ['Match Winner', 'Draws', 'Overs & Unders', 'Both Teams to Score'];
             const groupedTips = {};
+            
             filteredTips.forEach(tip => {
                 const cat = tip.category || 'Match Winner';
                 if(!groupedTips[cat]) groupedTips[cat] = [];
@@ -295,67 +308,84 @@
             });
 
             if(Object.keys(groupedTips).length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-sm text-slate-500 bg-cardbg rounded-xl border border-slate-800">No predictions published for this date yet.</div>`;
+                container.innerHTML = `<div class="text-center py-10 font-bold text-slate-500 uppercase tracking-widest bg-navybox rounded border border-navylight">No markets published for this date.</div>`;
                 return;
             }
 
-            for (const [categoryName, catTips] of Object.entries(groupedTips)) {
+            categoryOrder.forEach(categoryName => {
+                if(!groupedTips[categoryName]) return;
+                const catTips = groupedTips[categoryName];
+
+                // Calculate cumulative odds for the header like the image
+                let categoryOdds = 0;
+                catTips.forEach(t => { if(typeof t.odds === 'number') categoryOdds += t.odds; });
+                const oddsDisplay = categoryOdds > 0 ? categoryOdds.toFixed(2) : 'MEGA';
+
+                // Section Header mimicking the image's gold borders and dark background layout[cite: 8]
                 let html = `
-                    <div class="bg-cardbg rounded-xl border border-slate-700 p-4 mb-6">
-                        <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
-                            <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-futbol text-brand mr-2"></i>${categoryName}</h3>
-                            <span class="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded font-semibold">${catTips.length} Picks</span>
+                    <div class="mb-8">
+                        <div class="gold-border-box bg-navybox p-2 mb-4 text-center shadow-[0_0_15px_rgba(250,204,21,0.1)]">
+                            <h2 class="text-gold font-oswald font-bold text-xl tracking-widest uppercase flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-star text-sm"></i> 
+                                ${categoryName.toUpperCase()} • TOTAL ODDS: ${oddsDisplay}
+                                <i class="fa-solid fa-star text-sm"></i>
+                            </h2>
                         </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 `;
 
-                catTips.forEach(tip => {
+                catTips.forEach((tip, index) => {
                     const time = new Date(tip.kickoffTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     
                     if(tip.isFree) {
+                        // Free Pick Row mapping the layout: Dark bar, team names left, bright gold box on the right[cite: 8]
                         html += `
-                            <div class="mb-4 bg-slate-900 rounded-lg p-3 border border-slate-700">
-                                <div class="flex justify-between items-center text-xs text-slate-400 mb-2 font-semibold">
-                                    <span>${tip.league} • ${time}</span>
-                                    <span class="text-brand"><i class="fa-solid fa-unlock mr-1"></i>FREE</span>
+                            <div class="flex justify-between items-stretch bg-navybox border-l-4 border-gold shadow-md">
+                                <div class="flex flex-col justify-center p-3 w-full">
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">${tip.league} • ${time}</div>
+                                    <div class="font-bold text-white text-sm tracking-wide flex items-center gap-2">
+                                        <i class="fa-solid fa-futbol text-slate-500"></i>
+                                        ${tip.homeTeam} <span class="text-gold text-xs px-1">VS</span> ${tip.awayTeam}
+                                    </div>
                                 </div>
-                                <div class="flex justify-between items-center mb-3">
-                                    <div class="font-bold text-white text-sm">${tip.homeTeam}</div>
-                                    <div class="text-xs text-slate-500 px-2">vs</div>
-                                    <div class="font-bold text-white text-sm">${tip.awayTeam}</div>
-                                </div>
-                                <div class="flex justify-between items-center bg-brand/10 p-2 rounded border border-brand/20">
-                                    <span class="font-bold text-brand text-sm">${tip.prediction}</span>
-                                    <span class="font-bold text-white text-sm">${tip.odds}</span>
+                                <div class="bg-gold text-navy font-black text-sm px-4 flex flex-col justify-center items-center text-center shadow-inner border-l border-golddark min-w-[100px]">
+                                    <span class="leading-tight">${tip.prediction}</span>
+                                    <span class="text-[10px] bg-navy/10 px-2 rounded-full mt-1">ODDS: ${tip.odds}</span>
                                 </div>
                             </div>
                         `;
                     } else {
+                        // Locked Pick Row
                         html += `
-                            <div class="mb-4 bg-slate-900 rounded-lg p-3 border border-slate-700 relative" id="card-${tip._id}">
-                                <div class="flex justify-between items-center text-xs text-slate-400 mb-2 font-semibold">
-                                    <span>${tip.league} • ${time}</span>
-                                    <label class="flex items-center cursor-pointer bg-slate-800 px-2 py-1 rounded hover:bg-slate-700 transition">
-                                        <input type="checkbox" class="w-4 h-4 text-brand bg-slate-900 border-slate-600 rounded focus:ring-brand" onchange="toggleCart('${tip._id}', ${tip.price}, this)">
-                                        <span class="ml-1 text-slate-300">Select</span>
-                                    </label>
+                            <div class="flex justify-between items-stretch bg-navybox border-l-4 border-slate-600 shadow-md relative" id="card-${tip._id}">
+                                <div class="flex flex-col justify-center p-3 w-full pl-10 relative">
+                                    <input type="checkbox" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 accent-gold cursor-pointer" onchange="toggleCart('${tip._id}', ${tip.price}, this)">
+                                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">${tip.league} • ${time}</div>
+                                    <div class="font-bold text-white text-sm tracking-wide flex items-center gap-2">
+                                        <i class="fa-solid fa-futbol text-slate-500"></i>
+                                        ${tip.homeTeam} <span class="text-slate-500 text-xs px-1">VS</span> ${tip.awayTeam}
+                                    </div>
                                 </div>
-                                <div class="flex justify-between items-center mb-3">
-                                    <div class="font-bold text-white text-sm">${tip.homeTeam}</div>
-                                    <div class="text-xs text-slate-500 px-2">vs</div>
-                                    <div class="font-bold text-white text-sm">${tip.awayTeam}</div>
-                                </div>
-                                <div class="flex justify-between items-center bg-slate-800 p-2 rounded border border-slate-700">
-                                    <span class="font-bold text-slate-500 blurred-text text-sm">Home Win</span>
-                                    <span class="text-xs font-bold text-white bg-slate-700 px-2 py-1 rounded"><i class="fa-solid fa-lock text-brand mr-1"></i> KES ${tip.price}</span>
+                                <div class="bg-slate-800 text-slate-400 font-black text-sm px-4 flex flex-col justify-center items-center text-center border-l border-slate-700 min-w-[100px]">
+                                    <i class="fa-solid fa-lock text-gold mb-1"></i>
+                                    <span class="leading-tight">KES ${tip.price}</span>
                                 </div>
                             </div>
                         `;
                     }
                 });
                 
-                html += `</div>`;
+                // Add the Bet Now button specifically at the bottom of each category block
+                html += `
+                        </div>
+                        <a href="https://betika.com" target="_blank" class="block w-full text-center bg-betgreen hover:bg-green-500 text-white font-black uppercase tracking-widest py-3 rounded-sm shadow-lg mt-4 border-b-4 border-green-700 transition-all">
+                            <i class="fa-solid fa-money-bill-wave mr-2"></i> Bet Now on Betika
+                        </a>
+                    </div>`;
+                
                 container.innerHTML += html;
-            }
+            });
         }
 
         function toggleCart(tipId, price, checkbox) {
@@ -374,13 +404,24 @@
         }
 
         async function processPayment() {
-            showToast("STK Push Initiated. Check your phone.");
+            showToast("STK Push Initiated. Enter PIN on phone.");
             setTimeout(() => {
-                showToast("Payment Received! Unlocking...");
+                showToast("Payment Verified! Unlocking...");
                 selectedTipIds.forEach(id => {
                     const card = document.getElementById(`card-${id}`);
                     if(card) {
-                        card.innerHTML = card.innerHTML.replace('blurred-text', 'text-brand').replace('text-slate-500', 'text-brand').replace('Home Win', 'Premium Pick').replace(/<label.*<\/label>/s, '').replace(/KES \d+/, 'UNLOCKED');
+                        // Mock the reveal styling to match the free picks
+                        card.classList.remove('border-slate-600');
+                        card.classList.add('border-gold');
+                        const rightBox = card.lastElementChild;
+                        rightBox.className = "bg-gold text-navy font-black text-sm px-4 flex flex-col justify-center items-center text-center shadow-inner border-l border-golddark min-w-[100px]";
+                        rightBox.innerHTML = `<span class="leading-tight">PREMIUM PICK</span>`;
+                        // Remove checkbox
+                        const checkbox = card.querySelector('input[type="checkbox"]');
+                        if (checkbox) checkbox.remove();
+                        // Fix padding
+                        const leftBox = card.querySelector('.pl-10');
+                        if (leftBox) leftBox.classList.remove('pl-10');
                     }
                 });
                 selectedTipIds.clear();
