@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tripster Predictions | Premium Sports Tips</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tripster: '#10b981',
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: white; padding-bottom: 100px; }
+        .blurred-text { filter: blur(5px); user-select: none; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Header -->
+    <header class="bg-cardbg border-b border-gray-700 p-4 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-white tracking-wider uppercase">
+                <i class="fa-solid fa-futbol text-tripster mr-2"></i>Tripster<span class="text-tripster">Predictions</span>
+            </h1>
+            <div id="admin-badge" class="hidden text-xs bg-red-500 text-white px-2 py-1 rounded font-bold">
+                <i class="fa-solid fa-user-shield"></i> ADMIN
+            </div>
+        </div>
+    </header>
+
+    <!-- USER VIEW: Main Content Feed -->
+    <main class="max-w-3xl mx-auto p-4 mt-4" id="tips-container">
+        <div class="text-center text-gray-400 py-10" id="loading-state">
+            <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-3 text-tripster"></i>
+            <p>Loading today's premium tips...</p>
+        </div>
+    </main>
+
+    <!-- ADMIN VIEW: Dashboard -->
+    <main class="max-w-3xl mx-auto p-4 mt-4 hidden" id="admin-panel">
+        <div class="bg-cardbg p-6 rounded-lg border border-gray-700 shadow-md">
+            <h2 class="text-xl font-bold mb-4 border-b border-gray-600 pb-2"><i class="fa-solid fa-pen-to-square text-tripster mr-2"></i>Publish New Tip</h2>
+            <form id="admin-form" onsubmit="publishTip(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Home Team</label>
+                        <input type="text" id="homeTeam" required class="w-full bg-darkbg border border-gray-600 rounded p-2 text-white outline-none focus:border-tripster">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Away Team</label>
+                        <input type="text" id="awayTeam" required class="w-full bg-darkbg border border-gray-600 rounded p-2 text-white outline-none focus:border-tripster">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">League</label>
+                        <select id="league" class="w-full bg-darkbg border border-gray-600 rounded p-2 text-white outline-none focus:border-tripster">
+                            <option value="Premier League">Premier League</option>
+                            <option value="La Liga">La Liga</option>
+                            <option value="Serie A">Serie A</option>
+                            <option value="Mixed">Mixed</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Kickoff Time</label>
+                        <input type="datetime-local" id="kickoffTime" required class="w-full bg-darkbg border border-gray-600 rounded p-2 text-white outline-none focus:border-tripster" style="color-scheme: dark;">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-xs text-gray-400 mb-1">Prediction Market</label>
+                        <input type="text" id="prediction" placeholder="e.g. Home Win, Over 1.5" required class="w-full bg-darkbg border border-gray-600 rounded p-2 text-white outline-none focus:border-tripster">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Odds</label>
+                        <input type="number" step="0.01" id="odds" required class="w-full bg-darkbg border border-gray-600 rounded p-2 text-white outline-none focus:border-tripster">
+                    </div>
+                </div>
+
+                <div class="flex items-center mt-2">
+                    <input type="checkbox" id="isFree" class="w-5 h-5 text-tripster bg-darkbg border-gray-600 rounded focus:ring-tripster">
+                    <label class="ml-2 text-sm text-gray-300">Set as Free Preview Tip</label>
+                </div>
+
+                <button type="submit" id="publish-btn" class="w-full bg-tripster hover:bg-emerald-600 text-white font-bold py-3 rounded mt-4 transition-colors">
+                    <i class="fa-solid fa-paper-plane mr-2"></i>Publish Tip to Server
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Floating Checkout Bar (Hidden in Admin Mode) -->
+    <div id="checkout-bar" class="fixed bottom-0 left-0 w-full bg-cardbg border-t border-gray-700 p-4 transform translate-y-full transition-transform duration-300 z-50">
+        <div class="max-w-3xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-lg font-bold">
+                <span id="selected-count" class="text-gray-400 text-sm block">0 Tips Selected</span>
+                Total: <span id="total-price" class="text-tripster">0 KES</span>
+            </div>
+            
+            <div class="flex w-full sm:w-auto gap-2">
+                <div class="relative w-full sm:w-48">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <i class="fa-solid fa-phone text-gray-400 text-sm"></i>
+                    </div>
+                    <input type="tel" id="phone-input" placeholder="2547..." class="bg-darkbg border border-gray-600 text-white text-sm rounded focus:ring-tripster focus:border-tripster block w-full pl-9 p-2.5 outline-none">
+                </div>
+                <button onclick="processPayment()" id="pay-btn" class="bg-tripster hover:bg-emerald-600 text-white font-bold py-2.5 px-6 rounded transition-colors whitespace-nowrap flex items-center gap-2">
+                    <i class="fa-solid fa-unlock"></i> Pay
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://tripster-8090c6bbfe5f.herokuapp.com/api';
+        
+        // --- ROUTING LOGIC ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const isAdmin = urlParams.get('admin') === 'tripster';
+
+        if (isAdmin) {
+            document.getElementById('tips-container').classList.add('hidden');
+            document.getElementById('checkout-bar').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+            document.getElementById('admin-badge').classList.remove('hidden');
+        } else {
+            loadTips(); // Only load user feed if not in admin mode
+        }
+
+        // --- UTILITY ---
+        function showToast(message, type = 'success') {
+            Toastify({
+                text: message,
+                duration: 4000,
+                gravity: "top", position: "center",
+                style: { background: type === 'success' ? "#10b981" : "#ef4444", borderRadius: "8px", fontWeight: "bold" }
+            }).showToast();
+        }
+
+        // --- ADMIN FUNCTIONS ---
+        async function publishTip(e) {
+            e.preventDefault();
+            const btn = document.getElementById('publish-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Publishing...';
+            btn.disabled = true;
+
+            const payload = {
+                homeTeam: document.getElementById('homeTeam').value,
+                awayTeam: document.getElementById('awayTeam').value,
+                league: document.getElementById('league').value,
+                kickoffTime: document.getElementById('kickoffTime').value,
+                prediction: document.getElementById('prediction').value,
+                odds: parseFloat(document.getElementById('odds').value),
+                isFree: document.getElementById('isFree').checked
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/admin/publish`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'admin_user': 'tripster',
+                        'admin_pass': 'tripster2026'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    showToast("Tip published successfully!");
+                    document.getElementById('admin-form').reset();
+                } else {
+                    showToast("Failed to publish tip. Check credentials.", "error");
+                }
+            } catch (error) {
+                showToast("Server error.", "error");
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i>Publish Tip to Server';
+                btn.disabled = false;
+            }
+        }
+
+        // --- USER FUNCTIONS ---
+        let tipsData = [];
+        let selectedTipIds = new Set();
+        let currentTotal = 0;
+
+        async function loadTips() {
+            try {
+                const response = await fetch(`${API_URL}/tips`);
+                tipsData = await response.json();
+                
+                if(tipsData.length === 0) {
+                    document.getElementById('loading-state').innerHTML = '<p class="text-gray-400">No active tips published yet.</p>';
+                    return;
+                }
+                renderTips();
+            } catch (error) {
+                document.getElementById('loading-state').innerHTML = '<p class="text-red-400"><i class="fa-solid fa-triangle-exclamation"></i> Server offline</p>';
+            }
+        }
+
+        function renderTips() {
+            const container = document.getElementById('tips-container');
+            container.innerHTML = '';
+
+            tipsData.forEach(tip => {
+                const date = new Date(tip.kickoffTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                if(tip.isFree) {
+                    container.innerHTML += `
+                        <div class="bg-cardbg rounded-lg p-4 mb-4 border border-gray-700 shadow-md">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-trophy mr-1 text-yellow-500"></i> ${tip.league}</span>
+                                <span class="text-xs bg-tripster text-white px-2 py-1 rounded font-bold">FREE</span>
+                            </div>
+                            <div class="text-lg font-bold mb-1">${tip.homeTeam} vs ${tip.awayTeam}</div>
+                            <div class="text-sm text-gray-400 mb-4"><i class="fa-regular fa-clock mr-1"></i> ${date}</div>
+                            
+                            <div class="bg-darkbg rounded p-3 flex justify-between items-center border border-tripster/30">
+                                <div>
+                                    <div class="text-xs text-gray-400">Prediction</div>
+                                    <div class="font-bold text-tripster">${tip.prediction}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs text-gray-400">Odds</div>
+                                    <div class="font-bold text-white">${tip.odds}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML += `
+                        <div class="bg-cardbg rounded-lg p-4 mb-4 border border-gray-700 shadow-md relative overflow-hidden" id="card-${tip._id}">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-lock text-red-400 mr-1"></i> ${tip.league}</span>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" class="w-5 h-5 text-tripster bg-darkbg border-gray-600 rounded focus:ring-tripster focus:ring-2" onchange="toggleCart('${tip._id}', ${tip.price}, this)">
+                                </label>
+                            </div>
+                            <div class="text-lg font-bold mb-1">${tip.homeTeam} vs ${tip.awayTeam}</div>
+                            <div class="text-sm text-gray-400 mb-4"><i class="fa-regular fa-clock mr-1"></i> ${date}</div>
+                            
+                            <div class="bg-darkbg rounded p-3 flex justify-between items-center border border-gray-600">
+                                <div>
+                                    <div class="text-xs text-gray-400">Prediction</div>
+                                    <div class="font-bold text-white blurred-text">Home Win</div>
+                                </div>
+                                <div class="text-right flex flex-col items-end">
+                                    <span class="text-xs font-bold text-tripster bg-tripster/10 px-2 py-1 rounded">Unlock: ${tip.price} KES</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function toggleCart(tipId, price, checkbox) {
+            if(checkbox.checked) {
+                selectedTipIds.add(tipId);
+                currentTotal += price;
+            } else {
+                selectedTipIds.delete(tipId);
+                currentTotal -= price;
+            }
+            const bar = document.getElementById('checkout-bar');
+            document.getElementById('selected-count').innerText = `${selectedTipIds.size} Tips Selected`;
+            document.getElementById('total-price').innerText = `${currentTotal} KES`;
+            
+            selectedTipIds.size > 0 ? bar.classList.remove('translate-y-full') : bar.classList.add('translate-y-full');
+        }
+
+        async function processPayment() {
+            showToast("M-PESA STK Push Initiated. Enter PIN on your phone.");
+            // Add your backend STK push polling logic here later
+        }
+    </script>
+</body>
+</html>
